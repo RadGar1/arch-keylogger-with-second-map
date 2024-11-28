@@ -1,2 +1,15 @@
 # arch-keylogger
-This repository contains a keylogger program written in C meant to be integrated into a Linux environment. A keylogger is a program that records the keystrokes of users as they type. This type of program is typically used by threat actors to steal passwords, credit card payment information, and other sensitive digital data. The purpose of this project is to implement a traditional keylogger program for ethical hacking and cybersecurity education. For our implementation, we used a virtual machine with Arch Linux for our distribution and XFCE for our desktop environment. 
+This project implements a Linux kernel module that logs keystrokes by intercepting keyboard events at the kernel level. It captures keypress events and logs them into a buffer, which can be read from user space via the Debugfs filesystem. The module supports multiple logging formats: US keyboard characters, hexadecimal keycodes, and decimal keycodes.
+The objective of this project is to gain a working knowledge of Linux kernel module hacking/programming. The module was built in an Arch Linux virtual machine using VMWare Workstation and is based on [spy](https://github.com/jarun/spy), another kernel-level keylogger.
+
+
+
+## TODO
+- Add buffer management logic
+- Define a file operations structure
+- Implement a function to read logged keys from a debugfs file
+- Implement a keycode to string conversion function
+- Add logic for the core keyboard event handler
+- More todo items TBD...
+- Test basic functionality
+- Write build/usage instructions
