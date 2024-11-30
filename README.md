@@ -5,11 +5,13 @@ The objective of this project is to gain a working knowledge of Linux kernel mod
 
 
 ## TODO
-- Add buffer management logic
-- Define a file operations structure
-- Implement a function to read logged keys from a debugfs file
+- Add buffer management logic ✅
+- Define a file operations structure ✅
+- Implement a function to read logged keys from a debugfs file ✅
 - Implement a keycode to string conversion function
 - Add logic for the core keyboard event handler
-- More todo items TBD...
+- Add module initialization and cleanup functions
 - Test basic functionality
 - Write build/usage instructions
+- Implement a stealth mode to hide the keylogger from process-viewers like top/ps?
+
