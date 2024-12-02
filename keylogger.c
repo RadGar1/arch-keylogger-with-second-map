@@ -140,3 +140,12 @@ static int __init module_init(void)
     register_keyboard_notifier(&kb_notify_blk);
     return 0;
 }
+
+static void __exit module_exit(void)
+{
+    unregister_keyboard_notifier(&kb_notify_blk);
+    debugfs_remove_recursive(subdir);
+}
+
+module_init(module_init);
+module_exit(module_exit);
