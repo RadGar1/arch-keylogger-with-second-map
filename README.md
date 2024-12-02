@@ -16,9 +16,11 @@ The objective of this project is to gain a working knowledge of Linux kernel mod
 - Define a file operations structure ✅
 - Implement a function to read logged keys from a debugfs file ✅
 - Implement a keycode to string conversion function ✅
-- Add logic for the core keyboard event handler
-- Add module initialization and cleanup functions
-- Test basic functionality
+- Add logic for the core keyboard event handler ✅
+- Add module initialization and cleanup functions ✅
+- Test basic functionality ✅
+- Optimize code and documentation
 - Write build/usage instructions
+- Add a feature to write logged keys to a second debugfs file with only alphanumeric characters using a simplified keymap
 - Implement a stealth mode to hide the keylogger from process-viewers like top/ps?
 
