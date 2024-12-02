@@ -95,7 +95,7 @@ void string_conv(int kode, int shifted, char *buffer, int sys) {
 	switch (sys) {
 	case US: // For US system
 		if (kode > KEY_RESERVED && kode <= KEY_PAUSE) { // check to see if kode is in the valid range for us keymap
-			const char *us_key = (shifted == 1) ? us_keymap[keycode][1] : us_keymap[keycode][0]; // Determine if shift key was pressed
+			const char *us_key = (shifted == 1) ? us_keymap[kode][1] : us_keymap[kode][0]; // Determine if shift key was pressed
 			snprintf(buffer, CHUNK_LEN, "%s", us_key); // store the string in the buffer
 		} // if statement
 		break;
