@@ -119,7 +119,7 @@ void string_conv(int kode, int shifted, char *buffer, int sys) {
 	} // switch statement
 } // Method string_conv
 
-int callback(struct notifier_block *nblock,
+int kb_callback(struct notifier_block *nblock,
 		  unsigned long code,
 		  void *_param)
 {
