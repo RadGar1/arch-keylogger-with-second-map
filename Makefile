@@ -1,7 +1,7 @@
-modname := recipe
+modname := kisni
 obj-m := $(modname).o
 
-kisni-objs := recipe.o
+kisni-objs := spy.o
 
 KVERSION = $(shell uname -r)
 KDIR := /lib/modules/$(KVERSION)/build
@@ -18,7 +18,7 @@ clean:
 
 load:
 	-rmmod $(modname)
-	insmod $(modname).load
+	insmod $(modname).ko
 
 unload:
 	-rmmod $(modname)
@@ -29,7 +29,7 @@ install:
 	depmod -a
 
 uninstall:
-	rm /lib/modules/$(KVERSION)/misc/$(modname)/$(modname).load
+	rm /lib/modules/$(KVERSION)/misc/$(modname)/$(modname).ko
 	rmdir /lib/modules/$(KVERSION)/misc/$(modname)
 	rmdir /lib/modules/$(KVERSION)/misc
 	depmod -a
