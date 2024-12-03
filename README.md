@@ -13,32 +13,48 @@ make
 
 ### 1.5. Linux Kernel Headers are Required to Compile; Install if Necessary
 #### Arch Linux
-`sudo pacman -Syu linux-headers`
+```
+sudo pacman -Syu linux-headers
+```
 
 #### Ubuntu/Debian
-`sudo apt install linux-headers`
+```
+sudo apt install linux-headers
+```
 
 ### 2. Hook the Module into the Kernel (Activate the Keylogger)
 #### U.S. Keys:
 
-`sudo insmod innocent_module.ko`
+```
+sudo insmod innocent_module.ko
+```
 
 #### Hexadecimal:
 
-`sudo insmod innocent_module.ko mode=1`
+```
+sudo insmod innocent_module.ko mode=1
+```
 
 #### Decimal:
 
-`sudo insmod innocent_module.ko mode=2`
+```
+sudo insmod innocent_module.ko mode=2
+```
 
 ### 3. View the Keylog
-`sudo cat /sys/kernel/debug/secret/keys`
+```
+sudo cat /sys/kernel/debug/secret/keys
+```
 
 ### 4. Unhook the Module and Clear the Logs
-`sudo rmmod innocent_module`
+```
+sudo rmmod innocent_module
+```
 
 ### 5. Clean Up (Remove Kernel Module Object Files)
-`make clean`
+```
+make clean
+```
 
 ## Project Timeline
 
