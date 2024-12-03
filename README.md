@@ -2,6 +2,44 @@
 This project implements a Linux kernel module that logs keystrokes by intercepting keyboard events at the kernel level. It captures keypress events and logs them into a buffer, which can be read from user space via the Debugfs filesystem. The module supports multiple logging formats: US keyboard characters, hexadecimal keycodes, and decimal keycodes.
 The objective of this project is to gain a working knowledge of Linux kernel module hacking/programming. The module was built in an Arch Linux virtual machine using VMWare Workstation and is based on [spy](https://github.com/jarun/spy), another kernel-level keylogger.
 
+## Build/Usage Instructions
+
+### 1. Clone the Repository and Build
+```
+git clone https://github.com/egrassia11/arch-keylogger.git
+cd arch-keylogger
+make
+```
+
+### 1.5. Linux Kernel Headers are Required to Compile; Install if Necessary
+#### Arch Linux
+`sudo pacman -Syu linux-headers`
+
+#### Ubuntu/Debian
+`sudo apt install linux-headers`
+
+### 2. Hook the Module into the Kernel (Activate the Keylogger)
+#### U.S. Keys:
+
+`sudo insmod innocent_module.ko`
+
+#### Hexadecimal:
+
+`sudo insmod innocent_module.ko mode=1`
+
+#### Decimal:
+
+`sudo insmod innocent_module.ko mode=2`
+
+### 3. View the Keylog
+`sudo cat /sys/kernel/debug/secret/keys`
+
+### 4. Unhook the Module and Clear the Logs
+`sudo rmmod innocent_module`
+
+### 5. Clean Up (Remove Kernel Module Object Files)
+`make clean`
+
 ## Project Timeline
 
 | Task                         | Description                                                                  | Deadline       |
@@ -19,8 +57,8 @@ The objective of this project is to gain a working knowledge of Linux kernel mod
 - Add logic for the core keyboard event handler ✅
 - Add module initialization and cleanup functions ✅
 - Test basic functionality ✅
-- Optimize code and documentation
-- Write build/usage instructions
+- Optimize code and documentation ✅
+- Write build/usage instructions ✅
 - Add a feature to write logged keys to a second debugfs file with only alphanumeric characters using a simplified keymap
-- Implement a stealth mode to hide the keylogger from process-viewers like top/ps?
+- Implement a stealth mode to hide the keylogger from process viewers like top/ps?
 
